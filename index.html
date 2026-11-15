@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Twister Club - Night Club RP</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b0014;color:#fff}
+header{text-align:center;padding:28px 14px;background:linear-gradient(90deg,#ff00cc,#00e5ff)}header h1{margin:0;font-size:44px;text-shadow:0 0 18px #fff}header p{margin:6px 0 0;font-weight:700}
+nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px}button{border:0;border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:800;background:#ff00cc;color:#fff}button.c{background:#00bcd4}button.g{background:#22c55e}button.gray{background:#e5e7eb;color:#111}button.sec{background:#fff;color:#111}
+main{max-width:1100px;margin:0 auto;padding:0 14px 50px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:#1a0b2e;border:1px solid #ff00cc66;border-radius:16px;padding:14px}.card h3{margin:6px 0}
+input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #555;background:#fff;color:#111;margin:5px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:260px}.hidden{display:none}.badge{background:#22c55e;color:#000;padding:3px 8px;border-radius:999px;font-size:12px}.badge.red{background:#ef4444;color:#fff}
+.total{font-size:28px;font-weight:900;text-align:center;background:#000;padding:14px;border-radius:12px}.ownerbar{background:#facc15;color:#111;padding:10px;border-radius:10px;text-align:center;font-weight:800;margin:10px}
+</style></head><body>
+<header><h1>🌀 TWISTER CLUB</h1><p>Night Club RP • Dove la notte gira su se stessa • Ven - Sab 22:00 / 04:00 • 18+ RP</p></header>
+<nav><button onclick="show('home')">Home</button><button class="c" onclick="show('ingressi')">🎟️ Lista Ospiti</button><button onclick="show('tavoli')">👑 Tavoli VIP</button><button class="c" onclick="show('bar')">🍹 Bar</button><button onclick="show('cassa')">🧾 Cassa</button><button class="sec" onclick="openOwner()">🔒 Owner</button></nav>
+<div id="ownerbar" class="ownerbar hidden">✅ Modalità Owner attiva <button onclick="logoutOwner()">Esci</button> <button onclick="changePass()">Cambia Password</button></div>
+<main>
+<div id="view-home">
+<div class="card"><h2>🎉 Eventi di questa settimana</h2><div id="eventi" class="grid"></div><div id="addEvento" class="hidden"><button onclick="aggiungiEvento()">+ Aggiungi Evento (Owner)</button></div></div>
+<div class="row" style="margin-top:12px"><div class="card"><h2>👥 Staff RP</h2><p><b>Owner:</b> Capo del club • <b>Manager:</b> Gestisce serata • <b>DJ:</b> Musica • <b>Barman:</b> Drink • <b>Buttafuori:</b> Porta • <b>PR:</b> Liste</p><input id="candNome" placeholder="Nome RP per candidatura"><select id="candRuolo"><option>DJ</option><option>Barman</option><option>Buttafuori</option><option>PR</option><option>Manager</option></select><button class="g" onclick="candidati()">Invia Candidatura</button><p id="candMsg"></p><div id="candList"></div></div>
+<div class="card"><h2>📜 Regole del Club</h2><p>1. Rispetta tutti • 2. No armi • 3. No disturbare DJ • 4. Dress code elegante • 5. Ascolta lo staff • 6. Divertiti!</p><h3>💰 Contatori Live</h3><p>Ospiti dentro: <b id="countOspiti">0</b> • Tavoli occupati: <b id="countTavoli">0</b>/6 • Incasso: <b id="countIncasso">0.00€</b></p><p style="font-size:12px">Tutto si salva automaticamente nel browser (localStorage). Se ricarichi la pagina, i dati restano.</p></div></div>
+</div>
+
+<div id="view-ingressi" class="hidden"><div class="row"><div class="card"><h2>🎟️ Entra nel Club</h2><input id="gNome" placeholder="Nome RP"><input id="gNick" placeholder="Nickname"><input id="gEta" type="number" placeholder="Età RP"><select id="gTipo"><option value="0|Lista Base">Lista Base - Gratis</option><option value="10|Priority">Priority - 10€</option><option value="25|VIP">VIP - 25€</option></select><input id="gAmici" type="number" placeholder="Numero amici" value="1"><button class="g" style="width:100%" onclick="entra()">✅ ENTRA / CREA BIGLIETTO</button><p id="biglietto"></p></div><div class="card"><h2>Lista Ospiti Dentro</h2><div id="listaOspiti"></div></div></div></div>
+
+<div id="view-tavoli" class="hidden"><h2>👑 Tavoli VIP</h2><div id="tavoliGrid" class="grid"></div></div>
+
+<div id="view-bar" class="hidden"><div class="row"><div class="card"><h2>🍹 Bar - Conto</h2><div id="contoBar">Conto vuoto</div><p><b>Totale Bar: <span id="totBar">0.00€</span></b></p><input id="barCliente" placeholder="Nome cliente per il conto"><button class="g" style="width:100%" onclick="chiudiBar()">✅ CHIUDI CONTO BAR → CASSA</button><p id="barMsg"></p></div><div style="flex:2"><h2>Drink</h2><div id="drinkGrid" class="grid"></div><div id="addDrink" class="hidden"><button onclick="aggiungiDrink()">+ Aggiungi Drink (Owner)</button></div></div></div></div>
+
+<div id="view-cassa" class="hidden"><div class="card"><h2>🧾 Cassa Club</h2><p>Questa cassa funziona OFFLINE. Tutto è salvato nel browser.</p><div class="total" id="cassaTot">Incasso totale: 0.00€</div><p>Ospiti: <span id="cOspiti">0</span> • Tavoli occupati: <span id="cTavoli">0</span> • Ordini bar chiusi: <span id="cBar">0</span></p><div id="storico"></div><button class="gray" onclick="chiusura()">Chiusura Serata / Azzera Tutto</button></div></div>
+
+<div id="view-owner" class="hidden card" style="max-width:420px;margin:0 auto"><h2>🔒 Area Owner</h2><p>Password iniziale: <b>twister123</b></p><input id="pass" type="password" placeholder="Password owner"><button style="width:100%" onclick="loginOwner()">Entra</button><p id="passErr" style="color:#f87171"></p><button class="gray" onclick="show('home')">Torna</button></div>
+</main>
+<script>
+function load(k,d){try{let v=JSON.parse(localStorage.getItem(k));return v===null||v===undefined?d:v}catch(e){return d}}
+let eventi=load('twister_eventi',[{n:'Neon Night',d:'Venerdì • DJ Alex',p:10},{n:'Latino Saturday',d:'Sabato • DJ Maria',p:12},{n:'Hip Hop Sunday',d:'Domenica • DJ King',p:8},{n:'Ladies Night',d:'Giovedì • Ingresso donne gratis',p:0},{n:'DJ Guest',d:'Sabato • Ospite speciale',p:15},{n:'Pool Party',d:'Domenica pomeriggio',p:10}]);
+let drink=load('twister_drink',[{n:'Twister Shot',d:'Shot della casa',p:6},{n:'Neon Mojito',d:'Mojito blu neon',p:9},{n:'Blue Lagoon',d:'Vodka, blue curacao',p:8},{n:'Cuba Libre',d:'Rum, cola, lime',p:7},{n:'Sex on the Beach',d:'Vodka, pesca',p:9},{n:'Tequila Sunrise',d:'Tequila, arancia',p:8},{n:'Acqua',d:'Bottiglia',p:2},{n:'Red Bull',d:'Lattina',p:5}]);
+let ospiti=load('twister_ospiti',[]); let tavoli=load('twister_tavoli',Array.from({length:6},(_,i)=>({n:i+1,p:50+(i*20),posti:4+i,occ:null}))); let cand=load('twister_cand',[]); let barOrdini=load('twister_barordini',[]); let conto={}; let isOwner=sessionStorage.getItem('twister_owner')==='1';
+function save(){localStorage.setItem('twister_eventi',JSON.stringify(eventi));localStorage.setItem('twister_drink',JSON.stringify(drink));localStorage.setItem('twister_ospiti',JSON.stringify(ospiti));localStorage.setItem('twister_tavoli',JSON.stringify(tavoli));localStorage.setItem('twister_cand',JSON.stringify(cand));localStorage.setItem('twister_barordini',JSON.stringify(barOrdini));}
+function fmt(n){return Number(n).toFixed(2)+'€'}
+function show(v){['home','ingressi','tavoli','bar','cassa','owner'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));renderAll();}
+function incasso(){let a=ospiti.reduce((s,o)=>s+o.prezzo,0)+barOrdini.reduce((s,o)=>s+o.totale,0)+tavoli.filter(t=>t.occ).reduce((s,t)=>s+t.p,0);return a}
+function renderAll(){
+ document.getElementById('ownerbar').classList.toggle('hidden',!isOwner);
+ document.getElementById('addEvento').classList.toggle('hidden',!isOwner); document.getElementById('addDrink').classList.toggle('hidden',!isOwner);
+ document.getElementById('eventi').innerHTML=eventi.map((e,i)=>`<div class="card"><h3>${e.n}</h3><p>${e.d}</p><p><b>${fmt(e.p)}</b></p><button onclick="prenotaEvento('${e.n}')">Prenota</button>${isOwner?`<br><br><button class="gray" onclick="delEvento(${i})">Elimina</button>`:''}</div>`).join('');
+ document.getElementById('listaOspiti').innerHTML=ospiti.length?ospiti.map((o,i)=>`<p><b>${o.nome}</b> (${o.nick}) - ${o.tipo} - ${fmt(o.prezzo)} - Cod: ${o.cod} <button class="gray" onclick="esci(${i})">Esci</button></p>`).join(''):'Nessuno dentro ancora';
+ document.getElementById('tavoliGrid').innerHTML=tavoli.map((t,i)=>`<div class="card"><h3>Tavolo ${t.n} ${t.occ?'<span class="badge red">OCCUPATO</span>':'<span class="badge">LIBERO</span>'}</h3><p>${t.posti} posti • ${fmt(t.p)}</p><p>${t.occ?'Prenotato da: '+t.occ:'Libero'}</p><button onclick="prenotaTavolo(${i})">${t.occ?'Libera':'Prenota'}</button></div>`).join('');
+ document.getElementById('drinkGrid').innerHTML=drink.map((d,i)=>`<div class="card"><h3>${d.n}</h3><p>${d.d}</p><p><b>${fmt(d.p)}</b></p><button onclick="addBar(${i})">+ Aggiungi</button>${isOwner?` <button class="gray" onclick="delDrink(${i})">Elimina</button>`:''}</div>`).join('');
+ let tot=0,html='';for(let k in conto){let d=drink[k];tot+=d.p*conto[k];html+=`${d.n} x${conto[k]} - ${fmt(d.p*conto[k])}<br>`}document.getElementById('contoBar').innerHTML=html||'Conto vuoto';document.getElementById('totBar').innerText=fmt(tot);
+ document.getElementById('candList').innerHTML=cand.map(c=>`<p>${c.nome} - ${c.ruolo}</p>`).join('');
+ document.getElementById('countOspiti').innerText=ospiti.length;document.getElementById('countTavoli').innerText=tavoli.filter(t=>t.occ).length;document.getElementById('countIncasso').innerText=fmt(incasso());
+ document.getElementById('cOspiti').innerText=ospiti.length;document.getElementById('cTavoli').innerText=tavoli.filter(t=>t.occ).length;document.getElementById('cBar').innerText=barOrdini.length;document.getElementById('cassaTot').innerText='Incasso totale: '+fmt(incasso());
+ document.getElementById('storico').innerHTML='<h3>Storico Bar</h3>'+(barOrdini.map(o=>`<p>${o.cliente} - ${fmt(o.totale)}</p>`).join('')||'Nessun conto chiuso');
+}
+function entra(){let nome=document.getElementById('gNome').value||'Ospite RP';let nick=document.getElementById('gNick').value||'nick';let parts=document.getElementById('gTipo').value.split('|');let cod='TW-'+Math.floor(1000+Math.random()*9000);ospiti.push({nome:nome,nick:nick,prezzo:parseFloat(parts[0]),tipo:parts[1],cod:cod});save();renderAll();document.getElementById('biglietto').innerHTML=`<div class="card" style="background:#22c55e;color:#111"><b>✅ BIGLIETTO CREATO E SALVATO!</b><br>${nome} - ${parts[1]} - ${fmt(parseFloat(parts[0]))}<br>Codice: <b>${cod}</b><br>Mostra questo codice all'ingresso. Se ricarichi la pagina, resti in lista.</div>`;}
+function esci(i){ospiti.splice(i,1);save();renderAll();}
+function prenotaEvento(n){alert('Evento '+n+' prenotato! Vai in Lista Ospiti per entrare.');show('ingressi');}
+function prenotaTavolo(i){if(tavoli[i].occ){tavoli[i].occ=null}else{let n=prompt('Nome RP per il tavolo:');if(!n)return;tavoli[i].occ=n}save();renderAll();}
+function addBar(i){conto[i]=(conto[i]||0)+1;renderAll();}
+function chiudiBar(){let tot=0;for(let k in conto)tot+=drink[k].p*conto[k];if(!tot){alert('Conto vuoto!');return}let cl=document.getElementById('barCliente').value||'Cliente';barOrdini.push({cliente:cl,totale:tot});conto={};save();renderAll();document.getElementById('barMsg').innerText='✅ Conto di '+fmt(tot)+' salvato in Cassa!';}
+function candidati(){let n=document.getElementById('candNome').value;if(!n){alert('Scrivi il nome RP');return}cand.push({nome:n,ruolo:document.getElementById('candRuolo').value});save();renderAll();document.getElementById('candMsg').innerText='✅ Candidatura salvata!';}
+function chiusura(){if(confirm('Azzerare TUTTO? Ospiti, tavoli e bar saranno cancellati.')){ospiti=[];tavoli.forEach(t=>t.occ=null);barOrdini=[];cand=[];save();renderAll();alert('Serata chiusa!');}}
+function openOwner(){if(isOwner){show('home');return}show('owner')}
+function loginOwner(){let p=document.getElementById('pass').value;let s=localStorage.getItem('twister_pass')||'twister123';if(p===s){isOwner=true;sessionStorage.setItem('twister_owner','1');show('home');renderAll();}else{document.getElementById('passErr').innerText='Password errata!';}}
+function logoutOwner(){isOwner=false;sessionStorage.removeItem('twister_owner');renderAll();show('home');}
+function changePass(){let v=prompt('Vecchia password:');let s=localStorage.getItem('twister_pass')||'twister123';if(v!==s){alert('Sbagliata');return}let n=prompt('Nuova password:');if(n){localStorage.setItem('twister_pass',n);alert('Password cambiata!');}}
+function aggiungiEvento(){let n=prompt('Nome evento:');if(!n)return;let d=prompt('Descrizione / DJ:')||'';let p=parseFloat(prompt('Prezzo:')||'0');eventi.push({n:n,d:d,p:p});save();renderAll();}
+function delEvento(i){eventi.splice(i,1);save();renderAll();}
+function aggiungiDrink(){let n=prompt('Nome drink:');if(!n)return;let d=prompt('Descrizione:')||'';let p=parseFloat(prompt('Prezzo:')||'0');drink.push({n:n,d:d,p:p});save();renderAll();}
+function delDrink(i){drink.splice(i,1);save();renderAll();}
+renderAll();
+</script></body></html>
